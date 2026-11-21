@@ -28,3 +28,11 @@ use the editor.
   own key and store it in Secrets.
 - **Secrets.** Lovable manages them. Do not put secret values in the repo.
 <!-- LOVABLE:END -->
+
+## Project rules
+
+- Backend is used for authentication only (built-in users list); never add app data tables, RPCs, or client data queries — app data lives in an external AWS service added in later milestones.
+- Signed-in pages live under `src/routes/_authenticated/` (client-only gate redirecting to `/auth`); public pages stay top-level.
+- One auth listener lives in `src/components/AuthProvider.tsx`; read session state via `useAuth()` instead of adding new listeners.
+- React component files use PascalCase (`FeatureCard.tsx`); hooks/utils keep camelCase. Generated shadcn files in `src/components/ui/` are exempt.
+- Never commit real emails or names in code or demo data; use `example.com` placeholders.
