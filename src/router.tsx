@@ -1,18 +1,33 @@
-import { QueryClient } from "@tanstack/react-query";
-import { createRouter } from "@tanstack/react-router";
-import { routeTree } from "./routeTree.gen";
+import { createBrowserRouter, type RouteObject } from "react-router";
 
-export const getRouter = () => {
-  // One client per request: a module-level QueryClient leaks cached data between SSR requests.
-  const queryClient = new QueryClient();
+import { RootLayout, RootError, NotFound } from "@/components/RootLayout";
+import { authenticatedLoader, AuthenticatedLayout } from "@/components/AuthenticatedLayout";
+import Index from "@/pages/Index";
+import SignIn from "@/pages/SignIn";
+import SignUp from "@/pages/SignUp";
+import AppDashboard from "@/pages/AppDashboard";
 
-  const router = createRouter({
-    routeTree,
-    context: { queryClient },
-    scrollRestoration: true,
-    // Lets Query own freshness; set caching defaults on the QueryClient, not the router.
-    defaultPreloadStaleTime: 0,
-  });
+// Public pages sit directly under the root; signed-in pages live under the
+// "authenticated" layout, whose loader redirects to /auth when there is no user.
+export const routes: RouteObject[] = [
+  {
+    id: "root",
+    path: "/",
+    element: <RootLayout />,
+    errorElement: <RootError />,
+    children: [
+      { id: "index", index: true, element: <Index /> },
+      { id: "auth", path: "auth", element: <SignIn /> },
+      { id: "signup", path: "signup", element: <SignUp /> },
+      {
+        id: "authenticated",
+        loader: authenticatedLoader,
+        element: <AuthenticatedLayout />,
+        children: [{ id: "app", path: "app", element: <AppDashboard /> }],
+      },
+      { id: "not-found", path: "*", element: <NotFound /> },
+    ],
+  },
+];
 
-  return router;
-};
+export const router = createBrowserRouter(routes);

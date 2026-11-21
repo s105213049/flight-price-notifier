@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { Link } from "react-router";
 import { ArrowRight, BellRing, Radar, CalendarX2 } from "lucide-react";
 
 import { useAuth } from "@/components/AuthProvider";
@@ -8,24 +8,12 @@ import { Reveal } from "@/components/Reveal";
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
 import { Button } from "@/components/ui/button";
+import { usePageMeta } from "@/hooks/use-page-meta";
 
 const TITLE = "Flight Price Notifier — 機票降價通知";
 const DESCRIPTION =
   "設定航線與目標價，機票降價就通知你。Set a route and a target price — we email you when the fare drops.";
 
-export const Route = createFileRoute("/")({
-  head: () => ({
-    meta: [
-      { title: TITLE },
-      { name: "description", content: DESCRIPTION },
-      { property: "og:title", content: TITLE },
-      { property: "og:description", content: DESCRIPTION },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary_large_image" },
-    ],
-  }),
-  component: Index,
-});
 
 const features = [
   {
@@ -91,7 +79,9 @@ function HeroActions() {
   );
 }
 
-function Index() {
+export default function Index() {
+  usePageMeta({ title: TITLE, description: DESCRIPTION });
+
   return (
     <div className="relative min-h-screen overflow-hidden">
       <div className="pointer-events-none absolute inset-x-0 top-0 h-[720px] bg-hero-glow" />

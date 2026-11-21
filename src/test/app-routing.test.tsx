@@ -1,17 +1,14 @@
-import { QueryClient } from "@tanstack/react-query";
-import { createRouter, rootRouteId } from "@tanstack/react-router";
-import { describe, expect, it } from "vitest";
+import { matchRoutes } from "react-router";
+import { describe, expect, it, vi } from "vitest";
 
-import { routeTree } from "@/routeTree.gen";
+vi.mock("@/integrations/supabase/client", () => ({ supabase: {} }));
 
-// Match routes without running loaders or rendering: loaders may need a server or
-// network the test run lacks, and jsdom never loads the stylesheets React waits on.
+const { routes } = await import("@/router");
+
+// Match routes without rendering: loaders need the network the test run lacks.
 describe("App routing", () => {
   it("matches a page for / instead of falling back to not found", () => {
-    const router = createRouter({ routeTree, context: { queryClient: new QueryClient() } });
-
-    const matches = router.matchRoutes("/");
-
-    expect(matches.at(-1)?.routeId).not.toBe(rootRouteId);
+    const matches = matchRoutes(routes, "/") ?? [];
+    expect(matches.at(-1)?.route.id).toBe("index");
   });
 });

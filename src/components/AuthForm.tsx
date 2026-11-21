@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from "react";
-import { Link } from "@tanstack/react-router";
+import { Link } from "react-router";
 import { Loader2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";

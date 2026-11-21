@@ -1,38 +1,10 @@
-<!-- LOVABLE:BEGIN -->
-> [!IMPORTANT]
-> This project is connected to [Lovable](https://lovable.dev). Avoid rewriting
-> published git history — force pushing, or rebasing/amending/squashing commits
-> that are already pushed — as it rewrites history on Lovable's side and the
-> user will likely lose their project history.
->
-> Commits you push to the connected branch sync back to Lovable and show up in
-> the editor, so keep the branch in a working state.
-
-## What Lovable manages
-
-Rules outside this block are the project's own. Change the pieces below in
-Lovable, not by hand. With the [Lovable MCP](https://mcp.lovable.dev)
-connected, `send_message` asks Lovable to do it; otherwise ask the user to
-use the editor.
-
-- **Database.** Do not add or edit `supabase/migrations/` or `drizzle/`.
-  Ask Lovable to change the schema.
-- **Generated files.** Do not edit a file whose header says it is automatically
-  generated.
-- **AI gateway.** Keep model calls on Lovable's gateway, and keep
-  `LOVABLE_API_KEY` out of browser code.
-- **Connectors.** Lovable provides native connectors. `list_connectors` shows
-  which are enabled; `add_connector` only returns the dashboard link. When a
-  connector is enabled, calls go through the connector gateway and need
-  `LOVABLE_API_KEY`. When Lovable does not provide one, users can bring their
-  own key and store it in Secrets.
-- **Secrets.** Lovable manages them. Do not put secret values in the repo.
-<!-- LOVABLE:END -->
-
 ## Project rules
 
-- Backend is used for authentication only (built-in users list); never add app data tables, RPCs, or client data queries — app data lives in an external AWS service added in later milestones.
-- Signed-in pages live under `src/routes/_authenticated/` (client-only gate redirecting to `/auth`); public pages stay top-level.
+- Plain Vite + React SPA, statically hosted on Vercel (`vite build` → `dist/`). No SSR, no server functions; `vercel.json` rewrites every path to `index.html` so deep links resolve client-side.
+- Routing uses React Router; the route table lives in `src/router.tsx` and pages live in `src/pages/`.
+- Backend is the user's own Supabase project, used for authentication only (built-in users list); never add app data tables, RPCs, or client data queries — app data lives in an external AWS service added in later milestones.
+- Signed-in pages are children of the `authenticated` layout route (client-side loader redirecting to `/auth`); public pages stay direct children of the root.
+- One Supabase client lives in `src/integrations/supabase/client.ts`, reading `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY`; never hardcode URLs or keys elsewhere.
 - One auth listener lives in `src/components/AuthProvider.tsx`; read session state via `useAuth()` instead of adding new listeners.
 - React component files use PascalCase (`FeatureCard.tsx`); hooks/utils keep camelCase. Generated shadcn files in `src/components/ui/` are exempt.
 - Never commit real emails or names in code or demo data; use `example.com` placeholders.
