@@ -52,7 +52,7 @@ export function AuthForm({
   }
 
   return (
-    <div className="w-full max-w-sm animate-fade-up rounded-2xl border border-border bg-gradient-card p-8 shadow-card">
+    <div className="w-full max-w-sm animate-fade-up rounded-3xl border-2 border-border bg-gradient-card p-8 shadow-card stitch">
       <h1 className="text-2xl font-semibold tracking-tight text-foreground">{t.title}</h1>
       <p className="mt-2 text-sm text-muted-foreground">{t.subtitle}</p>
 
@@ -67,7 +67,7 @@ export function AuthForm({
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="h-11 bg-background/50"
+            className="h-11 rounded-xl border-2 bg-background/80"
           />
         </div>
         <div className="space-y-2">
@@ -80,7 +80,7 @@ export function AuthForm({
             required
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="h-11 bg-background/50"
+            className="h-11 rounded-xl border-2 bg-background/80"
           />
           {mode === "signup" && (
             <p className="text-xs text-muted-foreground">至少 6 個字元 · At least 6 characters</p>

@@ -92,7 +92,7 @@ export default function Index() {
       <main className="relative">
         <section className="mx-auto grid max-w-6xl items-center gap-14 px-5 pb-24 pt-16 sm:px-8 md:pt-24 lg:grid-cols-[1.15fr_1fr]">
           <div>
-            <p className="animate-fade-up inline-flex items-center gap-2 rounded-full border border-border bg-foreground/5 px-3 py-1 text-xs font-medium text-muted-foreground">
+            <p className="animate-fade-up inline-flex items-center gap-2 rounded-full border-2 border-border bg-card/80 px-3 py-1 text-xs font-semibold text-muted-foreground">
               <span className="size-1.5 rounded-full bg-success" />
               台北出發 · 東京 · 首爾
             </p>
@@ -129,7 +129,7 @@ export default function Index() {
 
         <section className="mx-auto max-w-6xl px-5 pb-28 sm:px-8">
           <Reveal className="mb-12 max-w-2xl">
-            <p className="text-sm font-medium uppercase tracking-[0.18em] text-primary-glow">Features</p>
+            <p className="text-sm font-semibold uppercase tracking-[0.18em] text-primary-glow">Features</p>
             <h2 className="mt-3 text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
               不用天天比價，預算內的機票自己找上門
             </h2>

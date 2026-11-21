@@ -41,10 +41,10 @@ export default function AppDashboard() {
           Hi {user.email}
         </h1>
         <div
-          className="animate-fade-up mt-10 rounded-2xl border border-dashed border-primary/40 bg-gradient-card p-8 shadow-card sm:p-12"
+          className="animate-fade-up mt-10 rounded-3xl border-2 border-dashed border-primary/40 bg-gradient-card p-8 shadow-card sm:p-12"
           style={{ animationDelay: "120ms" }}
         >
-          <span className="grid size-12 place-items-center rounded-xl border border-primary/30 bg-primary/10 text-primary-glow">
+          <span className="grid size-12 place-items-center rounded-2xl border-2 border-secondary-foreground/20 bg-secondary text-primary-glow">
             <Radar className="size-6" />
           </span>
           <p className="mt-6 text-lg font-medium text-foreground sm:text-xl">
