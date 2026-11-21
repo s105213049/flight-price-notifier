@@ -79,7 +79,7 @@ export default function AppDashboard() {
           </p>
         ) : (
           <div
-            className="animate-fade-up mt-10 grid gap-6 md:grid-cols-2"
+            className="animate-fade-up mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-3"
             style={{ animationDelay: "120ms" }}
           >
             {PLANS.map((plan) => (

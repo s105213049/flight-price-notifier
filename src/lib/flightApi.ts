@@ -6,7 +6,7 @@ export const FLIGHT_API_URL = (
   (import.meta.env["VITE_FLIGHT_API_URL"] as string | undefined) ?? DEFAULT_API_URL
 ).replace(/\/+$/, "");
 
-export type PlanName = "tokyo" | "seoul";
+export type PlanName = "tokyo" | "seoul" | "london";
 
 export type Subscription = {
   email: string;
@@ -48,6 +48,15 @@ export const PLANS: Plan[] = [
     destination: "SEL",
     route: "TPE-SEL",
     referencePrice: 5989,
+  },
+  {
+    name: "london",
+    label: "台北 ✈ 倫敦",
+    cityZh: "倫敦",
+    origin: "TPE",
+    destination: "LON",
+    route: "TPE-LON",
+    referencePrice: 23854,
   },
 ];
 
