@@ -216,7 +216,7 @@
 }
 
 /* Red-and-cream picnic blanket. */
-@utility bg-gingham {
+@utility picnic-gingham {
   background-color: var(--background);
   background-image:
     linear-gradient(90deg, color-mix(in oklab, var(--gingham) 55%, transparent) 50%, transparent 50%),
