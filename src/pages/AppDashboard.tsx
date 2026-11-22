@@ -1,4 +1,5 @@
-import { useNavigate } from "react-router";
+import { useEffect, useRef } from "react";
+import { useNavigate, useSearchParams } from "react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Loader2, LogOut } from "lucide-react";
 import { toast } from "sonner";
@@ -10,7 +11,15 @@ import { PlanCard } from "@/components/PlanCard";
 import { Button } from "@/components/ui/button";
 import { usePageMeta } from "@/hooks/use-page-meta";
 import { supabase } from "@/integrations/supabase/client";
-import { PLANS, listSubscriptions, subscribe, type PlanName } from "@/lib/flightApi";
+import {
+  PLANS,
+  cancelSubscription,
+  listSubscriptions,
+  statusOf,
+  submitCheckout,
+  subscribe,
+  type PlanName,
+} from "@/lib/flightApi";
 
 export default function AppDashboard() {
   usePageMeta({
@@ -22,23 +31,70 @@ export default function AppDashboard() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const email = (user.email ?? "").toLowerCase();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const purchase = searchParams.get("purchase");
+  // After ECPay sends the browser back, the ReturnURL callback may land a few seconds later: poll briefly.
+  const pollUntil = useRef<number>(0);
 
   const subsQuery = useQuery({
     queryKey: ["subscriptions", email],
     queryFn: () => listSubscriptions(email),
     enabled: email !== "",
+    refetchInterval: (query) => {
+      if (Date.now() > pollUntil.current) return false;
+      const rows = query.state.data ?? [];
+      return rows.some((s) => statusOf(s) === "pending_payment") ? 3000 : false;
+    },
   });
+
+  useEffect(() => {
+    if (!purchase) return;
+    if (purchase === "success") {
+      toast.success("付款完成！訂閱開通可能需要幾秒鐘。");
+      pollUntil.current = Date.now() + 30_000;
+      void queryClient.invalidateQueries({ queryKey: ["subscriptions", email] });
+    } else {
+      toast.error("付款未完成，可以再按「完成付款」重新付款。");
+    }
+    const next = new URLSearchParams(searchParams);
+    next.delete("purchase");
+    setSearchParams(next, { replace: true });
+  }, [purchase, searchParams, setSearchParams, queryClient, email]);
 
   const subscribeMutation = useMutation({
     mutationFn: (input: { plan_name: PlanName; target_price: number }) =>
       subscribe({ email, ...input }),
-    onSuccess: async (_data, input) => {
+    onSuccess: async (result, input) => {
+      if (result.kind === "checkout") {
+        toast.message("前往綠界付款頁…");
+        submitCheckout(result.html);
+        return;
+      }
       const plan = PLANS.find((p) => p.name === input.plan_name);
-      toast.success(`已開始追蹤 ${plan?.label ?? ""}，目標價 NT$${input.target_price.toLocaleString("zh-TW")}`);
+      toast.success(
+        `已更新 ${plan?.label ?? ""} 目標價為 NT$${input.target_price.toLocaleString("zh-TW")}`,
+      );
       await queryClient.invalidateQueries({ queryKey: ["subscriptions", email] });
     },
     onError: (err) => {
       toast.error(`訂閱失敗：${err instanceof Error ? err.message : "請稍後再試"}`);
+    },
+  });
+
+  const cancelMutation = useMutation({
+    mutationFn: (route: string) => cancelSubscription({ email, route }),
+    onSuccess: async (result) => {
+      if (result.subscription_status === "cancelled") {
+        toast.success(
+          `已取消訂閱，不會再扣款。${result.current_period_end_date ?? "本期結束"} 前仍會收到通知。`,
+        );
+      } else {
+        toast.success("已取消訂閱。");
+      }
+      await queryClient.invalidateQueries({ queryKey: ["subscriptions", email] });
+    },
+    onError: (err) => {
+      toast.error(`取消失敗：${err instanceof Error ? err.message : "請稍後再試"}`);
     },
   });
 
@@ -66,7 +122,8 @@ export default function AppDashboard() {
           Hi {user.email}
         </h1>
         <p className="animate-fade-up mt-3 text-muted-foreground" style={{ animationDelay: "60ms" }}>
-          選一條航線、設定新台幣目標價。我們每 30 分鐘查一次下個月的最低票價，達標就寄 email 通知你。
+          選一條航線、設定新台幣目標價並完成付款（每條航線 NT$300／月，可隨時取消）。我們每 30
+          分鐘查一次下個月的最低票價，達標就寄 email 通知你。
         </p>
         {subsQuery.isError ? (
           <p className="mt-6 text-sm text-destructive">
@@ -91,9 +148,19 @@ export default function AppDashboard() {
                   subscribeMutation.isPending &&
                   subscribeMutation.variables?.plan_name === plan.name
                 }
+                cancelling={cancelMutation.isPending && cancelMutation.variables === plan.route}
                 onSubmit={(target_price) =>
                   subscribeMutation.mutate({ plan_name: plan.name, target_price })
                 }
+                onCancel={() => {
+                  if (
+                    window.confirm(
+                      `確定要取消 ${plan.label} 的訂閱嗎？之後不會再扣款，已付費的這一期仍會收到通知。`,
+                    )
+                  ) {
+                    cancelMutation.mutate(plan.route);
+                  }
+                }}
               />
             ))}
           </div>
